@@ -1,5 +1,4 @@
 # sterlingbot
-# for from https://github.com/YangHeeJung391/auto-coin-trader
 
 ### Reference
  - 변동성 돌파 전략
