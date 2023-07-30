@@ -56,7 +56,7 @@ public class VloatilityRangeBreakoutSellService {
 			);
 	}
 	
-	// 못 팔고 남아있는 매수 주문 있는지 확인
+	// Check if remaining sell order exist
 	public void sellRemainOrder(CoinType coinType) {
 		List<VloatilityRangeBreakout> remainVloatilityRangeBreakouts = vloatilityRangeBreakoutRepository.findByCoinTypeAndStatus(coinType.name(), VloatilityRangeBreakoutStatus.BUY_DONE.getCode());
 		if (null == remainVloatilityRangeBreakouts) {

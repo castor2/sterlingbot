@@ -1,18 +1,19 @@
-# auto-coin-trader
+# sterlingbot
+# for from https://github.com/YangHeeJung391/auto-coin-trader
 
-### 참고전략
+### Reference
  - 변동성 돌파 전략
  - https://post.naver.com/viewer/postView.nhn?volumeNo=15975365&memberNo=40921089
  - 역추세 전략추가? (https://jsp-dev.tistory.com/178?category=824999)
  
  
-### 실행법
-  - upbit open api key 생성 
-  - 서버에 mariadb 설치 , 테이블 생성
-  - application.properties 에 upbit key , mariadb 주소 정보 넣음
-  - build 해서 jar 파일 서버에서 실행
+### HOWTO
+  - upbit open api key generation
+  - mariadb installation and table creation
+  - add upbit key and mariadb info in application.properties
+  - build and execute jar
   
-### mariadb 테이블 스키마
+### mariadb table schema
 ```
 CREATE TABLE coin.`vloatility_range_breakout` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -41,11 +42,11 @@ CREATE TABLE coin.`vloatility_range_breakout` (
 PRIMARY KEY (`id`),
 KEY `idx1` (`coin_type`,`datetime_id`,`date_string`),
 KEY `idx2` (`coin_type`,`status`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_bin'
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 ```
 
-### 실행
+### execution
 ```
-nohup java -Xms256m -Xmx256m -jar auto-coin-trader-0.0.1-SNAPSHOT.jar > /dev/null 2>&1 & 
+nohup java -Xms256m -Xmx256m -jar sterlingbot-0.0.1-SNAPSHOT.jar > /dev/null 2>&1 & 
 ```
 

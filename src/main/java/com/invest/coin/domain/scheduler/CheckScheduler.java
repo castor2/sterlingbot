@@ -22,7 +22,7 @@ public class CheckScheduler {
 	private final VloatilityRangeBreakoutSellService vloatilityRangeBreakoutSellService;
 	private final VloatilityRangeBreakoutStoplossService vloatilityRangeBreakoutStoplossService;
 	
-	// 매수 할지 체크 ( 1초에 한번 실행 )
+	// Check if buy or not (every 1 sec)
 	@Scheduled(fixedDelay = 1000) 
 	public void checkAndBuy() {
 		try {
@@ -36,7 +36,7 @@ public class CheckScheduler {
 		
 	}
 	
-	// 매수 체결 확인 ( 1분에 한번 실행 )
+	// Check buy completed (every 1 min)
 	@Scheduled(fixedDelay = 1000 * 60) 
 	public void confirmBuyOrder() {
 		for(CoinType coinType : CoinType.values()) {
@@ -44,7 +44,7 @@ public class CheckScheduler {
 		}
 	}
 	
-	// 매도 체결 확인 ( 1분에 한번 실행 )
+	// Check sell completed (every 1 min)
 	@Scheduled(fixedDelay = 1000 * 60) 
 	public void confirmSellOrder() {
 		for(CoinType coinType : CoinType.values()) {
@@ -52,7 +52,7 @@ public class CheckScheduler {
 		}
 	}
 	
-	// 손절 여부 확인 ( 5초에 한번 실행 , 구매가격 기준 5% 이상 손실시 손절 )
+	// Check loss cut (every 5 sec, loss cut if more than 5% loss)
 	@Scheduled(fixedDelay = 1000 * 5) 
 	public void checkStopLossAndSellOrder() {
 		try {
@@ -65,7 +65,7 @@ public class CheckScheduler {
 		}
 	}
 	
-	// 매수할 가격 계산 (매 정시 1시간마다)
+	// Calculate buy price (every 1 hour, sharp)
 	@Scheduled(cron = "0 1 * * * *") 
 	public void calculate() {
 		BigDecimal targetVloatilityRate = BigDecimal.valueOf(0.04);
@@ -74,7 +74,7 @@ public class CheckScheduler {
 		}
 	}
 	
-	// 매도 (매 정시 1시간마다)
+	// Sell (every 1 hour, sharp)
 	@Scheduled(cron = "0 0 * * * *") 
 	public void sell() {
 		for(CoinType coinType : CoinType.values()) {
@@ -82,7 +82,7 @@ public class CheckScheduler {
 		}
 	}
 	
-	// 못 팔고 남아있는 매수 주문 있는지 확인
+	// Check if remaining sell orders exist
 	@Scheduled(fixedDelay = 1000 * 60) 
 		public void sellRemain() {
 			for(CoinType coinType : CoinType.values()) {

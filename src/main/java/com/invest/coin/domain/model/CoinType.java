@@ -8,11 +8,12 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum CoinType {
-	BTC("KRW-BTC", new BigDecimal(1000), "비트코인"),
-	ETH("KRW-ETH", new BigDecimal(500), "이더리움"),
-	BCH("KRW-BCH", new BigDecimal(50), "비트코인캐시"),
-	EOS("KRW-EOS", new BigDecimal(5), "이오스"),
-	DOT("KRW-DOT", new BigDecimal(10), "폴카닷");
+	BTC("KRW-BTC", new BigDecimal(1000), "BitCoin"),
+	ETH("KRW-ETH", new BigDecimal(500), "Etherium"),
+	//BCH("KRW-BCH", new BigDecimal(50), "BitCoinCash"),
+	SBD("KRW-SBD", new BigDecimal(10), "StreamDollar"),
+	DOGE("KRW-DOGE", new BigDecimal(10), "DogeCoin"),
+	STMX("KRW-STMX", new BigDecimal(10), "StromX");
 	
 	private String upbitTicker;
 	private BigDecimal priceUnit;
