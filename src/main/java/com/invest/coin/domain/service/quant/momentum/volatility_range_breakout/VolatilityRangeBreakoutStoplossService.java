@@ -11,10 +11,10 @@ import javax.annotation.PostConstruct;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import com.invest.coin.domain.entity.coin.VloatilityRangeBreakout;
+import com.invest.coin.domain.entity.coin.VolatilityRangeBreakout;
 import com.invest.coin.domain.model.CoinType;
-import com.invest.coin.domain.model.quant.momentum.volatility_range_breakout.VloatilityRangeBreakoutStatus;
-import com.invest.coin.domain.repository.coin.VloatilityRangeBreakoutRepository;
+import com.invest.coin.domain.model.quant.momentum.volatility_range_breakout.VolatilityRangeBreakoutStatus;
+import com.invest.coin.domain.repository.coin.VolatilityRangeBreakoutRepository;
 import com.invest.coin.domain.service.upbit.market.UpbitMarketService;
 
 import lombok.RequiredArgsConstructor;
@@ -23,13 +23,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class VloatilityRangeBreakoutStoplossService {
+public class VolatilityRangeBreakoutStoplossService {
 	
 	private Map<String, AtomicBoolean> checking = new HashMap<>();
 	
 	private final UpbitMarketService upbitMarketService;
-	private final VloatilityRangeBreakoutRepository vloatilityRangeBreakoutRepository;
-	private final VloatilityRangeBreakoutSellService vloatilityRangeBreakoutSellService;
+	private final VolatilityRangeBreakoutRepository volatilityRangeBreakoutRepository;
+	private final VolatilityRangeBreakoutSellService volatilityRangeBreakoutSellService;
 	
 	@PostConstruct
     public void init() {
@@ -44,20 +44,20 @@ public class VloatilityRangeBreakoutStoplossService {
 			return;
 		}
 		checking.get(coinType.getUpbitTicker()).set(true);
-		List<VloatilityRangeBreakout> vloatilityRangeBreakouts = vloatilityRangeBreakoutRepository.findByCoinTypeAndStatus(coinType.name(), VloatilityRangeBreakoutStatus.BUY_DONE.getCode());
-		if (null == vloatilityRangeBreakouts || vloatilityRangeBreakouts.isEmpty()) {
+		List<VolatilityRangeBreakout> volatilityRangeBreakouts = volatilityRangeBreakoutRepository.findByCoinTypeAndStatus(coinType.name(), VolatilityRangeBreakoutStatus.BUY_DONE.getCode());
+		if (null == volatilityRangeBreakouts || volatilityRangeBreakouts.isEmpty()) {
 			checking.get(coinType.getUpbitTicker()).set(false);
 			return;
 		}
 		
 		BigDecimal currentPrice = upbitMarketService.getCurrentPrice(coinType);
-		vloatilityRangeBreakouts.stream().forEach(
-				vloatilityRangeBreakout -> {
-					BigDecimal stoplossPrice = vloatilityRangeBreakout.getBuyPrice().multiply(new BigDecimal(0.95));
-					log.debug("cointype : {}, datetime : {}, stop loss price : {} , current price : {}", coinType.name(), vloatilityRangeBreakout.getDateString() + vloatilityRangeBreakout.getDatetimeId(), stoplossPrice, currentPrice);
+		volatilityRangeBreakouts.stream().forEach(
+				volatilityRangeBreakout -> {
+					BigDecimal stoplossPrice = volatilityRangeBreakout.getBuyPrice().multiply(new BigDecimal(0.95));
+					log.debug("cointype : {}, datetime : {}, stop loss price : {} , current price : {}", coinType.name(), volatilityRangeBreakout.getDateString() + volatilityRangeBreakout.getDatetimeId(), stoplossPrice, currentPrice);
 					if (currentPrice.compareTo(stoplossPrice) < 0) {
 						log.debug("stop loss execute");
-						vloatilityRangeBreakoutSellService.sellOrder(coinType, vloatilityRangeBreakout);
+						volatilityRangeBreakoutSellService.sellOrder(coinType, volatilityRangeBreakout);
 					}
 				});
 		checking.get(coinType.getUpbitTicker()).set(false);

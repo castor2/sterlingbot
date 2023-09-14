@@ -9,12 +9,12 @@ import java.util.List;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import com.invest.coin.domain.entity.coin.VloatilityRangeBreakout;
+import com.invest.coin.domain.entity.coin.VolatilityRangeBreakout;
 import com.invest.coin.domain.model.Balance;
 import com.invest.coin.domain.model.CoinType;
 import com.invest.coin.domain.model.MovingAverage;
-import com.invest.coin.domain.model.quant.momentum.volatility_range_breakout.VloatilityRangeBreakoutStatus;
-import com.invest.coin.domain.repository.coin.VloatilityRangeBreakoutRepository;
+import com.invest.coin.domain.model.quant.momentum.volatility_range_breakout.VolatilityRangeBreakoutStatus;
+import com.invest.coin.domain.repository.coin.VolatilityRangeBreakoutRepository;
 import com.invest.coin.domain.service.upbit.account.UpbitAccountService;
 import com.invest.coin.domain.service.upbit.market.UpbitMarketService;
 import com.invest.coin.domain.util.DateUtil;
@@ -25,13 +25,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class VloatilityRangeBreakoutService {
+public class VolatilityRangeBreakoutService {
 	
 	private final UpbitMarketService upbitMarketService;
 	private final UpbitAccountService upbitAccountService;
-	private final VloatilityRangeBreakoutRepository vloatilityRangeBreakoutRepository;
+	private final VolatilityRangeBreakoutRepository volatilityRangeBreakoutRepository;
 	
-	public void calculate(CoinType coinType, BigDecimal targetVloatilityRate) {
+	public void calculate(CoinType coinType, BigDecimal targetVolatilityRate) {
 		MovingAverage yesterdayMovingAverage = upbitMarketService.getYesterDayMovingAverage(coinType);
 		BigDecimal yesterdayRange = yesterdayMovingAverage.getHighPrice().subtract(yesterdayMovingAverage.getLowPrice());
 		BigDecimal noiseRate = getNoiseRate(yesterdayMovingAverage);
@@ -40,7 +40,7 @@ public class VloatilityRangeBreakoutService {
 		
 		BigDecimal k = getK(coinType, noiseRate);
 		
-		BigDecimal investmentRate = getInvestmentRateByTargetVolatility(yesterdayMovingAverage, targetVloatilityRate);
+		BigDecimal investmentRate = getInvestmentRateByTargetVolatility(yesterdayMovingAverage, targetVolatilityRate);
 		
 		Balance balance = upbitAccountService.getUpbitBalance();
 		BigDecimal buyableAmount = balance.getTotalAmount().divide(BigDecimal.valueOf(24 * CoinType.values().length), 8, RoundingMode.HALF_UP);
@@ -51,7 +51,7 @@ public class VloatilityRangeBreakoutService {
 		BigDecimal targetCount = buyAmount.divide(targetPrice, 8, RoundingMode.HALF_UP);
 		
 		ZonedDateTime now = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
-		VloatilityRangeBreakout vloatilityRangeBreakout = VloatilityRangeBreakout.builder()
+		VolatilityRangeBreakout volatilityRangeBreakout = VolatilityRangeBreakout.builder()
 		.coinType(coinType.name())
 		.dateString(DateUtil.getDateString(now))
 		.datetimeId(String.valueOf(now.getHour()))
@@ -61,25 +61,25 @@ public class VloatilityRangeBreakoutService {
 		.targetPrice(targetPrice)
 		.targetCount(targetCount)
 		.k(k)
-		.vloatilityInvestRate(investmentRate)
-		.status((targetCount.compareTo(BigDecimal.ZERO) == 0)? VloatilityRangeBreakoutStatus.NOT_BREAKOUT.getCode() : VloatilityRangeBreakoutStatus.BREAKOUT_REQUEST.getCode())
+		.volatilityInvestRate(investmentRate)
+		.status((targetCount.compareTo(BigDecimal.ZERO) == 0)? VolatilityRangeBreakoutStatus.NOT_BREAKOUT.getCode() : VolatilityRangeBreakoutStatus.BREAKOUT_REQUEST.getCode())
 		.createdAt(now).build();
 		
 		// DB 저장
-		vloatilityRangeBreakoutRepository.save(vloatilityRangeBreakout);
+		volatilityRangeBreakoutRepository.save(volatilityRangeBreakout);
 	}
 	
 	private BigDecimal getK(CoinType coinType, BigDecimal currentNoiseRate) {
 		ZonedDateTime now = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
-		List<VloatilityRangeBreakout> vloatilityRangeBreakouts = vloatilityRangeBreakoutRepository.findByCoinTypeAndDatetimeIdAndDateStringRange(
+		List<VolatilityRangeBreakout> volatilityRangeBreakouts = volatilityRangeBreakoutRepository.findByCoinTypeAndDatetimeIdAndDateStringRange(
 				coinType.name()
 				, String.valueOf(now.getHour())
 				, DateUtil.getDateString(now.minusDays(19)) );
 		
-		if(null != vloatilityRangeBreakouts && !vloatilityRangeBreakouts.isEmpty()) {
-			BigDecimal totalNoiseRate = vloatilityRangeBreakouts.stream().map(VloatilityRangeBreakout::getNoiseRate).reduce(BigDecimal.ZERO, BigDecimal::add);
+		if(null != volatilityRangeBreakouts && !volatilityRangeBreakouts.isEmpty()) {
+			BigDecimal totalNoiseRate = volatilityRangeBreakouts.stream().map(VolatilityRangeBreakout::getNoiseRate).reduce(BigDecimal.ZERO, BigDecimal::add);
 			totalNoiseRate = currentNoiseRate.add(totalNoiseRate);
-			return totalNoiseRate.divide(BigDecimal.valueOf(vloatilityRangeBreakouts.size() + 1), 8, RoundingMode.HALF_UP);
+			return totalNoiseRate.divide(BigDecimal.valueOf(volatilityRangeBreakouts.size() + 1), 8, RoundingMode.HALF_UP);
 		}
 		
 		return currentNoiseRate;
@@ -109,8 +109,8 @@ public class VloatilityRangeBreakoutService {
 		return movingAverageScore;
 	}
 	
-	private BigDecimal getInvestmentRateByTargetVolatility(MovingAverage yesterdayMovingAverage, BigDecimal targetVloatilityRate) {
-		BigDecimal targetVolatility = targetVloatilityRate;
+	private BigDecimal getInvestmentRateByTargetVolatility(MovingAverage yesterdayMovingAverage, BigDecimal targetVolatilityRate) {
+		BigDecimal targetVolatility = targetVolatilityRate;
 		BigDecimal yesterdayRange = yesterdayMovingAverage.getHighPrice().subtract(yesterdayMovingAverage.getLowPrice());
 		BigDecimal yesterdayVolatility = yesterdayRange.divide(yesterdayMovingAverage.getClosePrice(),8, RoundingMode.HALF_UP);
 		

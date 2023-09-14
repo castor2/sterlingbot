@@ -14,11 +14,11 @@ import javax.annotation.PostConstruct;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import com.invest.coin.domain.entity.coin.VloatilityRangeBreakout;
+import com.invest.coin.domain.entity.coin.VolatilityRangeBreakout;
 import com.invest.coin.domain.model.CoinType;
-import com.invest.coin.domain.model.quant.momentum.volatility_range_breakout.VloatilityRangeBreakoutStatus;
+import com.invest.coin.domain.model.quant.momentum.volatility_range_breakout.VolatilityRangeBreakoutStatus;
 import com.invest.coin.domain.model.upbit.trade.UpbitOrder;
-import com.invest.coin.domain.repository.coin.VloatilityRangeBreakoutRepository;
+import com.invest.coin.domain.repository.coin.VolatilityRangeBreakoutRepository;
 import com.invest.coin.domain.service.upbit.market.UpbitMarketService;
 import com.invest.coin.domain.service.upbit.trade.UpbitTradeService;
 
@@ -28,13 +28,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class VloatilityRangeBreakoutBuyService {
+public class VolatilityRangeBreakoutBuyService {
 	
 	private Map<String, AtomicBoolean> checking = new HashMap<>();
 	
 	private final UpbitMarketService upbitMarketService;
 	private final UpbitTradeService upbitTradeService;
-	private final VloatilityRangeBreakoutRepository vloatilityRangeBreakoutRepository;
+	private final VolatilityRangeBreakoutRepository volatilityRangeBreakoutRepository;
 	
 	@PostConstruct
     public void init() {
@@ -49,24 +49,24 @@ public class VloatilityRangeBreakoutBuyService {
 			return;
 		}
 		checking.get(coinType.getUpbitTicker()).set(true);
-		List<VloatilityRangeBreakout> vloatilityRangeBreakouts = vloatilityRangeBreakoutRepository.findByCoinTypeAndStatus(coinType.name(), VloatilityRangeBreakoutStatus.BREAKOUT_REQUEST.getCode());
-		if (null == vloatilityRangeBreakouts || vloatilityRangeBreakouts.isEmpty()) {
+		List<VolatilityRangeBreakout> volatilityRangeBreakouts = volatilityRangeBreakoutRepository.findByCoinTypeAndStatus(coinType.name(), VolatilityRangeBreakoutStatus.BREAKOUT_REQUEST.getCode());
+		if (null == volatilityRangeBreakouts || volatilityRangeBreakouts.isEmpty()) {
 			checking.get(coinType.getUpbitTicker()).set(false);
 			return;
 		}
 		
 		BigDecimal currentPrice = upbitMarketService.getCurrentPrice(coinType);
-		vloatilityRangeBreakouts.stream().forEach(
-				vloatilityRangeBreakout -> {
-					log.debug("cointype : {}, datetime : {}, targetPrice : {} , currentPrice : {}", coinType.name(), vloatilityRangeBreakout.getDateString() + vloatilityRangeBreakout.getDatetimeId(), vloatilityRangeBreakout.getTargetPrice(), currentPrice);
-					if (currentPrice.compareTo(vloatilityRangeBreakout.getTargetPrice()) >= 0) {
-						UpbitOrder upbitOrder = upbitTradeService.buyMarketPrice(coinType, vloatilityRangeBreakout.getTargetPrice().multiply(vloatilityRangeBreakout.getTargetCount()).setScale(8, RoundingMode.HALF_UP));
+		volatilityRangeBreakouts.stream().forEach(
+				volatilityRangeBreakout -> {
+					log.debug("cointype : {}, datetime : {}, targetPrice : {} , currentPrice : {}", coinType.name(), volatilityRangeBreakout.getDateString() + volatilityRangeBreakout.getDatetimeId(), volatilityRangeBreakout.getTargetPrice(), currentPrice);
+					if (currentPrice.compareTo(volatilityRangeBreakout.getTargetPrice()) >= 0) {
+						UpbitOrder upbitOrder = upbitTradeService.buyMarketPrice(coinType, volatilityRangeBreakout.getTargetPrice().multiply(volatilityRangeBreakout.getTargetCount()).setScale(8, RoundingMode.HALF_UP));
 						log.debug("coinType : {} , upbitBuyOrder : {}", upbitOrder);
 						
-						vloatilityRangeBreakout.setBuyUuid(upbitOrder.getUuid());
-						vloatilityRangeBreakout.setStatus(VloatilityRangeBreakoutStatus.BUY_REQURST.getCode());
+						volatilityRangeBreakout.setBuyUuid(upbitOrder.getUuid());
+						volatilityRangeBreakout.setStatus(VolatilityRangeBreakoutStatus.BUY_REQURST.getCode());
 						
-						vloatilityRangeBreakoutRepository.save(vloatilityRangeBreakout);
+						volatilityRangeBreakoutRepository.save(volatilityRangeBreakout);
 					}
 				});
 		checking.get(coinType.getUpbitTicker()).set(false);
@@ -81,14 +81,14 @@ public class VloatilityRangeBreakoutBuyService {
 	@Async
 	public void confirmBuyOrder(CoinType coinType) {
 		log.debug("coinType : {} , confirmBuyOrder", coinType.name());
-		List<VloatilityRangeBreakout> vloatilityRangeBreakouts = vloatilityRangeBreakoutRepository.findByCoinTypeAndStatus(coinType.name(), VloatilityRangeBreakoutStatus.BUY_REQURST.getCode());
-		if (null == vloatilityRangeBreakouts || vloatilityRangeBreakouts.isEmpty()) {
+		List<VolatilityRangeBreakout> volatilityRangeBreakouts = volatilityRangeBreakoutRepository.findByCoinTypeAndStatus(coinType.name(), VolatilityRangeBreakoutStatus.BUY_REQURST.getCode());
+		if (null == volatilityRangeBreakouts || volatilityRangeBreakouts.isEmpty()) {
 			return;
 		}
 		
-		vloatilityRangeBreakouts.stream().forEach(
-				vloatilityRangeBreakout -> {
-					UpbitOrder upbitOrderDetail = upbitTradeService.getOrder(vloatilityRangeBreakout.getBuyUuid());
+		volatilityRangeBreakouts.stream().forEach(
+				volatilityRangeBreakout -> {
+					UpbitOrder upbitOrderDetail = upbitTradeService.getOrder(volatilityRangeBreakout.getBuyUuid());
 					log.debug("coinType : {} , upbitBuyOrderDetail : {}", upbitOrderDetail);
 					if (upbitOrderDetail.getState().equalsIgnoreCase("wait")) {
 						return;
@@ -111,13 +111,13 @@ public class VloatilityRangeBreakoutBuyService {
 						buyAvgPrice = buySumPrice.divide(buyCount, 8, RoundingMode.HALF_UP);
 					}
 					
-					vloatilityRangeBreakout.setBuyPrice(buyAvgPrice);
-					vloatilityRangeBreakout.setBuyCount(buyCount);
-					vloatilityRangeBreakout.setBuyAt(ZonedDateTime.now(ZoneId.of("Asia/Seoul")));
-					vloatilityRangeBreakout.setStatus(VloatilityRangeBreakoutStatus.BUY_DONE.getCode());
-					vloatilityRangeBreakout.setFee(upbitOrderDetail.getPaidFee());
+					volatilityRangeBreakout.setBuyPrice(buyAvgPrice);
+					volatilityRangeBreakout.setBuyCount(buyCount);
+					volatilityRangeBreakout.setBuyAt(ZonedDateTime.now(ZoneId.of("Asia/Seoul")));
+					volatilityRangeBreakout.setStatus(VolatilityRangeBreakoutStatus.BUY_DONE.getCode());
+					volatilityRangeBreakout.setFee(upbitOrderDetail.getPaidFee());
 					
-					vloatilityRangeBreakoutRepository.save(vloatilityRangeBreakout);
+					volatilityRangeBreakoutRepository.save(volatilityRangeBreakout);
 					
 				});
 		
