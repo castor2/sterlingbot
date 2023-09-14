@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.invest.coin.domain.model.ErrorResponse;
-import com.invest.coin.domain.service.quant.momentum.volatility_range_breakout.VloatilityRangeBreakoutBuyService;
-import com.invest.coin.domain.service.quant.momentum.volatility_range_breakout.VloatilityRangeBreakoutStoplossService;
+import com.invest.coin.domain.service.quant.momentum.volatility_range_breakout.VolatilityRangeBreakoutBuyService;
+import com.invest.coin.domain.service.quant.momentum.volatility_range_breakout.VolatilityRangeBreakoutStoplossService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,8 +19,8 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class ErrorController {
 	
-	private final VloatilityRangeBreakoutBuyService vloatilityRangeBreakoutBuyService;
-	private final VloatilityRangeBreakoutStoplossService vloatilityRangeBreakoutStoplossService;
+	private final VolatilityRangeBreakoutBuyService volatilityRangeBreakoutBuyService;
+	private final VolatilityRangeBreakoutStoplossService volatilityRangeBreakoutStoplossService;
 	
 	@ExceptionHandler(Exception.class)
     protected ResponseEntity<ErrorResponse> handleException(HttpServletRequest request, Exception e) {
@@ -34,8 +34,8 @@ public class ErrorController {
                         .message(e.toString())
                         .build();
 
-        vloatilityRangeBreakoutBuyService.setChecking(false);
-        vloatilityRangeBreakoutStoplossService.setChecking(false);
+        volatilityRangeBreakoutBuyService.setChecking(false);
+        volatilityRangeBreakoutStoplossService.setChecking(false);
         
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }

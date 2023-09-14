@@ -6,24 +6,24 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.invest.coin.domain.model.CoinType;
-import com.invest.coin.domain.service.quant.momentum.volatility_range_breakout.VloatilityRangeBreakoutBuyService;
-import com.invest.coin.domain.service.quant.momentum.volatility_range_breakout.VloatilityRangeBreakoutSellService;
-import com.invest.coin.domain.service.quant.momentum.volatility_range_breakout.VloatilityRangeBreakoutService;
+import com.invest.coin.domain.service.quant.momentum.volatility_range_breakout.VolatilityRangeBreakoutBuyService;
+import com.invest.coin.domain.service.quant.momentum.volatility_range_breakout.VolatilityRangeBreakoutSellService;
+import com.invest.coin.domain.service.quant.momentum.volatility_range_breakout.VolatilityRangeBreakoutService;
 
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-public class VloatilityRangeBreakoutController {
+public class VolatilityRangeBreakoutController {
 	
-	private final VloatilityRangeBreakoutService vloatilityRangeBreakoutService;
-	private final VloatilityRangeBreakoutBuyService vloatilityRangeBreakoutBuyService;
-	private final VloatilityRangeBreakoutSellService vloatilityRangeBreakoutSellService;
+	private final VolatilityRangeBreakoutService volatilityRangeBreakoutService;
+	private final VolatilityRangeBreakoutBuyService volatilityRangeBreakoutBuyService;
+	private final VolatilityRangeBreakoutSellService volatilityRangeBreakoutSellService;
 	
 	@GetMapping("/coin/calculate")
-	public String order(BigDecimal targetVloatilityRate) {
+	public String order(BigDecimal targetVolatilityRate) {
 		for(CoinType coinType : CoinType.values()) {
-			vloatilityRangeBreakoutService.calculate(coinType, targetVloatilityRate);
+			volatilityRangeBreakoutService.calculate(coinType, targetVolatilityRate);
 		}
 		return "calculate";
 	}
@@ -31,7 +31,7 @@ public class VloatilityRangeBreakoutController {
 	@GetMapping("/coin/check_and_buy")
 	public String checkAndBuy() {
 		for(CoinType coinType : CoinType.values()) {
-			vloatilityRangeBreakoutBuyService.checkAndBuy(coinType);
+			volatilityRangeBreakoutBuyService.checkAndBuy(coinType);
 		}
 		return "calculate";
 	}
@@ -39,7 +39,7 @@ public class VloatilityRangeBreakoutController {
 	@GetMapping("/coin/sell")
 	public String sell() {
 		for(CoinType coinType : CoinType.values()) {
-			vloatilityRangeBreakoutSellService.sell(coinType);
+			volatilityRangeBreakoutSellService.sell(coinType);
 		}
 		return "sell";
 	}

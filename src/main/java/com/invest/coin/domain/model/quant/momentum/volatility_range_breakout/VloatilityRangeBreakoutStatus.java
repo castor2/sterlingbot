@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum VloatilityRangeBreakoutStatus {
+public enum VolatilityRangeBreakoutStatus {
 	BREAKOUT_REQUEST("BB"),
 	NOT_BREAKOUT("NB"),
 	SELL_REQUEST("SR"),

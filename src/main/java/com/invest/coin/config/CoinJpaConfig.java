@@ -16,8 +16,8 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import com.invest.coin.domain.entity.coin.VloatilityRangeBreakout;
-import com.invest.coin.domain.repository.coin.VloatilityRangeBreakoutRepository;
+import com.invest.coin.domain.entity.coin.VolatilityRangeBreakout;
+import com.invest.coin.domain.repository.coin.VolatilityRangeBreakoutRepository;
 import com.zaxxer.hikari.HikariDataSource;
 
 @Configuration
@@ -26,7 +26,7 @@ import com.zaxxer.hikari.HikariDataSource;
         transactionManagerRef = "coinTransactionManager",
         entityManagerFactoryRef = "coinEntityManager",
         		basePackageClasses = {
-                        VloatilityRangeBreakoutRepository.class
+                        VolatilityRangeBreakoutRepository.class
                 }
 )
 public class CoinJpaConfig {
@@ -44,7 +44,7 @@ public class CoinJpaConfig {
     	LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
     	
     	em.setDataSource(coinDataSource());
-        em.setPackagesToScan(VloatilityRangeBreakout.class.getPackage().getName());
+        em.setPackagesToScan(VolatilityRangeBreakout.class.getPackage().getName());
         
         HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         em.setJpaVendorAdapter(vendorAdapter);

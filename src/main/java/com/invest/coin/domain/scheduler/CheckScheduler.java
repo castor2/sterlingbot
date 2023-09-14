@@ -6,10 +6,10 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.invest.coin.domain.model.CoinType;
-import com.invest.coin.domain.service.quant.momentum.volatility_range_breakout.VloatilityRangeBreakoutBuyService;
-import com.invest.coin.domain.service.quant.momentum.volatility_range_breakout.VloatilityRangeBreakoutSellService;
-import com.invest.coin.domain.service.quant.momentum.volatility_range_breakout.VloatilityRangeBreakoutService;
-import com.invest.coin.domain.service.quant.momentum.volatility_range_breakout.VloatilityRangeBreakoutStoplossService;
+import com.invest.coin.domain.service.quant.momentum.volatility_range_breakout.VolatilityRangeBreakoutBuyService;
+import com.invest.coin.domain.service.quant.momentum.volatility_range_breakout.VolatilityRangeBreakoutSellService;
+import com.invest.coin.domain.service.quant.momentum.volatility_range_breakout.VolatilityRangeBreakoutService;
+import com.invest.coin.domain.service.quant.momentum.volatility_range_breakout.VolatilityRangeBreakoutStoplossService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -17,21 +17,21 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CheckScheduler {
 	
-	private final VloatilityRangeBreakoutService vloatilityRangeBreakoutService;
-	private final VloatilityRangeBreakoutBuyService vloatilityRangeBreakoutBuyService;
-	private final VloatilityRangeBreakoutSellService vloatilityRangeBreakoutSellService;
-	private final VloatilityRangeBreakoutStoplossService vloatilityRangeBreakoutStoplossService;
+	private final VolatilityRangeBreakoutService volatilityRangeBreakoutService;
+	private final VolatilityRangeBreakoutBuyService volatilityRangeBreakoutBuyService;
+	private final VolatilityRangeBreakoutSellService volatilityRangeBreakoutSellService;
+	private final VolatilityRangeBreakoutStoplossService volatilityRangeBreakoutStoplossService;
 	
 	// Check if buy or not (every 1 sec)
 	@Scheduled(fixedDelay = 1000) 
 	public void checkAndBuy() {
 		try {
 			for(CoinType coinType : CoinType.values()) {
-				vloatilityRangeBreakoutBuyService.checkAndBuy(coinType);
+				volatilityRangeBreakoutBuyService.checkAndBuy(coinType);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			vloatilityRangeBreakoutBuyService.setChecking(false);
+			volatilityRangeBreakoutBuyService.setChecking(false);
 		}
 		
 	}
@@ -40,7 +40,7 @@ public class CheckScheduler {
 	@Scheduled(fixedDelay = 1000 * 60) 
 	public void confirmBuyOrder() {
 		for(CoinType coinType : CoinType.values()) {
-			vloatilityRangeBreakoutBuyService.confirmBuyOrder(coinType);
+			volatilityRangeBreakoutBuyService.confirmBuyOrder(coinType);
 		}
 	}
 	
@@ -48,7 +48,7 @@ public class CheckScheduler {
 	@Scheduled(fixedDelay = 1000 * 60) 
 	public void confirmSellOrder() {
 		for(CoinType coinType : CoinType.values()) {
-			vloatilityRangeBreakoutSellService.confirmSellOrder(coinType);
+			volatilityRangeBreakoutSellService.confirmSellOrder(coinType);
 		}
 	}
 	
@@ -57,20 +57,20 @@ public class CheckScheduler {
 	public void checkStopLossAndSellOrder() {
 		try {
 			for(CoinType coinType : CoinType.values()) {
-				vloatilityRangeBreakoutStoplossService.checkStopLossAndSellOrder(coinType);
+				volatilityRangeBreakoutStoplossService.checkStopLossAndSellOrder(coinType);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			vloatilityRangeBreakoutStoplossService.setChecking(false);
+			volatilityRangeBreakoutStoplossService.setChecking(false);
 		}
 	}
 	
 	// Calculate buy price (every 1 hour, sharp)
 	@Scheduled(cron = "0 1 * * * *") 
 	public void calculate() {
-		BigDecimal targetVloatilityRate = BigDecimal.valueOf(0.04);
+		BigDecimal targetVolatilityRate = BigDecimal.valueOf(0.04);
 		for(CoinType coinType : CoinType.values()) {
-			vloatilityRangeBreakoutService.calculate(coinType, targetVloatilityRate);
+			volatilityRangeBreakoutService.calculate(coinType, targetVolatilityRate);
 		}
 	}
 	
@@ -78,7 +78,7 @@ public class CheckScheduler {
 	@Scheduled(cron = "0 0 * * * *") 
 	public void sell() {
 		for(CoinType coinType : CoinType.values()) {
-			vloatilityRangeBreakoutSellService.sell(coinType);
+			volatilityRangeBreakoutSellService.sell(coinType);
 		}
 	}
 	
@@ -86,7 +86,7 @@ public class CheckScheduler {
 	@Scheduled(fixedDelay = 1000 * 60) 
 		public void sellRemain() {
 			for(CoinType coinType : CoinType.values()) {
-				vloatilityRangeBreakoutSellService.sellRemainOrder(coinType);
+				volatilityRangeBreakoutSellService.sellRemainOrder(coinType);
 			}
 		}
 

@@ -20,8 +20,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @Data
 @Entity
-@Table(name = "vloatility_range_breakout")
-public class VloatilityRangeBreakout {
+@Table(name = "volatility_range_breakout")
+public class VolatilityRangeBreakout {
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="id")
@@ -72,8 +72,8 @@ public class VloatilityRangeBreakout {
 	@Column(name="moving_avg_score", precision = 10, scale = 8)
 	private BigDecimal movingAvgScore;
 	
-	@Column(name="vloatility_invest_rate", precision = 10, scale = 8)
-	private BigDecimal vloatilityInvestRate;
+	@Column(name="volatility_invest_rate", precision = 10, scale = 8)
+	private BigDecimal volatilityInvestRate;
 	
 	@Column(name="k", precision = 10, scale = 8)
 	private BigDecimal k;
