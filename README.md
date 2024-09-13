@@ -44,6 +44,9 @@ KEY `idx2` (`coin_type`,`status`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 ```
 
+### install tools
+sudo apt install mysql mysql-server net-tools openjdk-17-jdk openjdk-17-jre
+
 ### execution
 ```
 nohup java -Xms256m -Xmx256m -jar sterlingbot-0.0.1-SNAPSHOT.jar > /dev/null 2>&1 & 
