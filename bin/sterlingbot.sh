@@ -19,6 +19,7 @@ case $1 in
         APP_HOME=/home/castor/apps/sterlingbot
 	JVM_OPTS="-Xms1g -Xmx1g"
 	APP_CONFIG=$APP_HOME/conf/application_dev.properties
+        JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 	;;
     stg)
 	;;
@@ -29,10 +30,13 @@ case $1 in
 	;;
 esac
 
-case "$2" in
+
+case $2 in
     start)
-        nohup java $JAVA_OPTS -jar $APP_HOME/sterlingbot.jar --spring.config.location=$APP_CONFIG 1> /dev/null 2>&1 & 
+        nohup $JAVA_HOME/bin/java $JAVA_OPTS -jar $APP_HOME/sterlingbot.jar --spring.config.location=$APP_CONFIG 1> /dev/null 2>&1 
+        # nohup $JAVA_HOME/bin/java $JAVA_OPTS -jar $APP_HOME/sterlingbot.jar --spring.config.location=$APP_CONFIG > /dev/null 2>&1 & 
 	echo -n $! > $APP_HOME/bin/sterlingbot.pid
+	echo "process started.." 
 	;;
     stop)
         echo ['cat $APP_HOME/bin/sterlingbot.pid'] stop 
@@ -40,4 +44,5 @@ case "$2" in
         ;; 
     *)
         printUsage $*
+	;;
 esac

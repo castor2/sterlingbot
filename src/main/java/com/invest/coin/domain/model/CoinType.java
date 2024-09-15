@@ -14,6 +14,7 @@ public enum CoinType {
 	SBD("KRW-SBD", new BigDecimal(10), "StreamDollar"),
 	DOGE("KRW-DOGE", new BigDecimal(10), "DogeCoin"),
 	STMX("KRW-STMX", new BigDecimal(10), "StromX");
+	BEAM("KRW-BEAM", new BigDecimal(10), "BEAM");
 	
 	private String upbitTicker;
 	private BigDecimal priceUnit;
