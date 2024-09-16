@@ -27,6 +27,99 @@
         "type": "influxdb",
         "uid": "fdxz0m2psnshsc"
       },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "fieldMinMax": false,
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyKRW"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "id": 5,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": true,
+        "text": {},
+        "textMode": "value_and_name",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.2.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "fdxz0m2psnshsc"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            }
+          ],
+          "measurement": "coin",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "amount"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "sum"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "title": "Total asset",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "default": false,
+        "type": "influxdb",
+        "uid": "fdxz0m2psnshsc"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -46,7 +139,7 @@
       "gridPos": {
         "h": 16,
         "w": 12,
-        "x": 0,
+        "x": 12,
         "y": 0
       },
       "id": 4,
@@ -127,96 +220,128 @@
     },
     {
       "datasource": {
-        "default": false,
-        "type": "influxdb",
-        "uid": "fdxz0m2psnshsc"
+        "default": true,
+        "type": "mysql",
+        "uid": "bdxvtvx9ctl34d"
       },
-      "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "thresholds"
           },
-          "fieldMinMax": false,
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
           "mappings": [],
-          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
                 "color": "green",
                 "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
               }
             ]
-          },
-          "unit": "currencyKRW"
+          }
         },
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
+        "h": 4,
         "w": 12,
-        "x": 12,
-        "y": 0
+        "x": 0,
+        "y": 4
       },
-      "id": 5,
+      "id": 7,
       "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
           "fields": "",
-          "values": false
+          "reducer": [
+            "sum"
+          ],
+          "show": false
         },
-        "showPercentChange": true,
-        "text": {},
-        "textMode": "value_and_name",
-        "wideLayout": true
+        "showHeader": true
       },
       "pluginVersion": "11.2.0",
       "targets": [
         {
+          "dataset": "coin",
           "datasource": {
-            "type": "influxdb",
-            "uid": "fdxz0m2psnshsc"
+            "type": "mysql",
+            "uid": "bdxvtvx9ctl34d"
           },
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            }
-          ],
-          "measurement": "coin",
-          "orderByTime": "ASC",
-          "policy": "default",
+          "editorMode": "builder",
+          "format": "table",
+          "rawSql": "SELECT MAX(buy_at), MAX(created_at), MAX(sell_at), MAX(updated_at) FROM coin.volatility_range_breakout LIMIT 50 ",
           "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
+          "sql": {
+            "columns": [
               {
-                "params": [
-                  "amount"
+                "name": "MAX",
+                "parameters": [
+                  {
+                    "name": "buy_at",
+                    "type": "functionParameter"
+                  }
                 ],
-                "type": "field"
+                "type": "function"
               },
               {
-                "params": [],
-                "type": "sum"
+                "name": "MAX",
+                "parameters": [
+                  {
+                    "name": "created_at",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              },
+              {
+                "name": "MAX",
+                "parameters": [
+                  {
+                    "name": "sell_at",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              },
+              {
+                "name": "MAX",
+                "parameters": [
+                  {
+                    "name": "updated_at",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
               }
-            ]
-          ],
-          "tags": []
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "table": "volatility_range_breakout"
         }
       ],
-      "title": "Total asset",
-      "type": "stat"
+      "title": "Panel Title",
+      "type": "table"
     },
     {
       "datasource": {
@@ -247,13 +372,16 @@
             },
             "insertNulls": false,
             "lineInterpolation": "linear",
+            "lineStyle": {
+              "fill": "solid"
+            },
             "lineWidth": 1,
             "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
             },
-            "showPoints": "auto",
-            "spanNulls": false,
+            "showPoints": "always",
+            "spanNulls": true,
             "stacking": {
               "group": "A",
               "mode": "none"
@@ -271,15 +399,14 @@
                 "value": null
               }
             ]
-          },
-          "unit": "currencyKRW"
+          }
         },
         "overrides": []
       },
       "gridPos": {
         "h": 8,
         "w": 12,
-        "x": 12,
+        "x": 0,
         "y": 8
       },
       "id": 6,
@@ -296,52 +423,6 @@
         }
       },
       "targets": [
-        {
-          "alias": "$tag_coinname",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "fdxz0m2psnshsc"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "coinname::tag"
-              ],
-              "type": "tag"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "measurement": "coin",
-          "orderByTime": "ASC",
-          "policy": "autogen",
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "amount"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ]
-        },
         {
           "alias": "sum",
           "datasource": {
@@ -379,6 +460,54 @@
               {
                 "params": [],
                 "type": "sum"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "$tag_coinname",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "fdxz0m2psnshsc"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "coinname::tag"
+              ],
+              "type": "tag"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "coin",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "amount"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
               }
             ]
           ],
@@ -777,13 +906,13 @@
     "list": []
   },
   "time": {
-    "from": "now-2d",
+    "from": "now-24h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "browser",
   "title": "MyCoin",
   "uid": "ddxvup4m2skcge",
-  "version": 32,
+  "version": 41,
   "weekStart": ""
 }
