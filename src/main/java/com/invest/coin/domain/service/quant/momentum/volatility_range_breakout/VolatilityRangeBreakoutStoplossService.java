@@ -1,6 +1,7 @@
 package com.invest.coin.domain.service.quant.momentum.volatility_range_breakout;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,25 +26,33 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class VolatilityRangeBreakoutStoplossService {
 	
+	public static double STOP_LOSS_PERCENT = 0.02;
+
 	private Map<String, AtomicBoolean> checking = new HashMap<>();
+	private Map<String, LocalDateTime> checkingSetTime = new HashMap<>();
 	
 	private final UpbitMarketService upbitMarketService;
 	private final VolatilityRangeBreakoutRepository volatilityRangeBreakoutRepository;
 	private final VolatilityRangeBreakoutSellService volatilityRangeBreakoutSellService;
 	
 	@PostConstruct
-    public void init() {
-        for(CoinType coinType : CoinType.values()) {
-        	checking.put(coinType.getUpbitTicker(), new AtomicBoolean());
+	public void init() {
+		for(CoinType coinType : CoinType.values()) {
+			checking.put(coinType.getUpbitTicker(), new AtomicBoolean());
+			checkingSetTime.put(coinType.getUpbitTicker(), LocalDateTime.now());
 		}
-    }
+	}
 	
 	public void checkStopLossAndSellOrder(CoinType coinType) {
 		log.debug("check stop loss");
 		if (checking.get(coinType.getUpbitTicker()).get()) {
-			return;
+			if (LocalDateTime.now().isBefore(checkingSetTime.get(coinType.getUpbitTicker()).plusMinutes(5))) {
+				return;
+			}
 		}
 		checking.get(coinType.getUpbitTicker()).set(true);
+		checkingSetTime.put(coinType.getUpbitTicker(), LocalDateTime.now());
+
 		List<VolatilityRangeBreakout> volatilityRangeBreakouts = volatilityRangeBreakoutRepository.findByCoinTypeAndStatus(coinType.name(), VolatilityRangeBreakoutStatus.BUY_DONE.getCode());
 		if (null == volatilityRangeBreakouts || volatilityRangeBreakouts.isEmpty()) {
 			checking.get(coinType.getUpbitTicker()).set(false);
@@ -53,7 +62,7 @@ public class VolatilityRangeBreakoutStoplossService {
 		BigDecimal currentPrice = upbitMarketService.getCurrentPrice(coinType);
 		volatilityRangeBreakouts.stream().forEach(
 				volatilityRangeBreakout -> {
-					BigDecimal stoplossPrice = volatilityRangeBreakout.getBuyPrice().multiply(new BigDecimal(0.95));
+					BigDecimal stoplossPrice = volatilityRangeBreakout.getBuyPrice().multiply(new BigDecimal(1- STOP_LOSS_PERCENT));
 					log.debug("cointype : {}, datetime : {}, stop loss price : {} , current price : {}", coinType.name(), volatilityRangeBreakout.getDateString() + volatilityRangeBreakout.getDatetimeId(), stoplossPrice, currentPrice);
 					if (currentPrice.compareTo(stoplossPrice) < 0) {
 						log.debug("stop loss execute");
@@ -66,6 +75,9 @@ public class VolatilityRangeBreakoutStoplossService {
 	
 	public void setChecking(boolean value) {
 		for(CoinType coinType : CoinType.values()) {
+			if (value) {
+				checkingSetTime.put(coinType.getUpbitTicker(), LocalDateTime.now());
+			}
 			checking.get(coinType.getUpbitTicker()).set(value);
 		}
 	}

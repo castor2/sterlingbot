@@ -2,6 +2,7 @@ package com.invest.coin.domain.service.quant.momentum.volatility_range_breakout;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
@@ -31,24 +32,30 @@ import lombok.extern.slf4j.Slf4j;
 public class VolatilityRangeBreakoutBuyService {
 	
 	private Map<String, AtomicBoolean> checking = new HashMap<>();
+	private Map<String, LocalDateTime> checkingSetTime = new HashMap<>();
 	
 	private final UpbitMarketService upbitMarketService;
 	private final UpbitTradeService upbitTradeService;
 	private final VolatilityRangeBreakoutRepository volatilityRangeBreakoutRepository;
 	
 	@PostConstruct
-    public void init() {
-        for(CoinType coinType : CoinType.values()) {
-        	checking.put(coinType.getUpbitTicker(), new AtomicBoolean());
+	public void init() {
+		for(CoinType coinType : CoinType.values()) {
+			checking.put(coinType.getUpbitTicker(), new AtomicBoolean());
+			checkingSetTime.put(coinType.getUpbitTicker(), LocalDateTime.now());
 		}
-    }
+	}
 	
 	public void checkAndBuy(CoinType coinType) {
 		log.debug("coinType : {} , checkAndBuy", coinType.name());
 		if (checking.get(coinType.getUpbitTicker()).get()) {
-			return;
+			if (LocalDateTime.now().isBefore(checkingSetTime.get(coinType.getUpbitTicker()).plusMinutes(5))) {
+				return;
+			}
 		}
 		checking.get(coinType.getUpbitTicker()).set(true);
+		checkingSetTime.put(coinType.getUpbitTicker(), LocalDateTime.now());
+
 		List<VolatilityRangeBreakout> volatilityRangeBreakouts = volatilityRangeBreakoutRepository.findByCoinTypeAndStatus(coinType.name(), VolatilityRangeBreakoutStatus.BREAKOUT_REQUEST.getCode());
 		if (null == volatilityRangeBreakouts || volatilityRangeBreakouts.isEmpty()) {
 			checking.get(coinType.getUpbitTicker()).set(false);
@@ -74,6 +81,9 @@ public class VolatilityRangeBreakoutBuyService {
 	
 	public void setChecking(boolean value) {
 		for(CoinType coinType : CoinType.values()) {
+			if (value) {
+				checkingSetTime.put(coinType.getUpbitTicker(), LocalDateTime.now());
+			}
 			checking.get(coinType.getUpbitTicker()).set(value);
 		}
 	}

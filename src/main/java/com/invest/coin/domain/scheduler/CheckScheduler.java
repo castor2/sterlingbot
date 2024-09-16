@@ -77,17 +77,27 @@ public class CheckScheduler {
 	// Sell (every 1 hour, sharp)
 	@Scheduled(cron = "0 0 * * * *") 
 	public void sell() {
-		for(CoinType coinType : CoinType.values()) {
-			volatilityRangeBreakoutSellService.sell(coinType);
+		try {
+			for(CoinType coinType : CoinType.values()) {
+				volatilityRangeBreakoutSellService.sell(coinType);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			volatilityRangeBreakoutSellService.setChecking(false);
 		}
 	}
 	
 	// Check if remaining sell orders exist
 	@Scheduled(fixedDelay = 1000 * 60) 
-		public void sellRemain() {
+	public void sellRemain() {
+		try {
 			for(CoinType coinType : CoinType.values()) {
 				volatilityRangeBreakoutSellService.sellRemainOrder(coinType);
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			volatilityRangeBreakoutSellService.setChecking(false);
 		}
+	}
 
 }
