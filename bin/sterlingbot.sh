@@ -16,10 +16,10 @@ fi
 
 case $1 in
     dev)
-        APP_HOME=/home/castor/apps/sterlingbot
-	JVM_OPTS="-Xms1g -Xmx1g"
-	APP_CONFIG=$APP_HOME/conf/application_dev.properties
-        JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+        export APP_HOME=`pwd`
+	export JVM_OPTS=" -Xms1g -Xmx1g -Duser.timezone=Asia/Seoul "
+	export APP_CONFIG=$APP_HOME/conf/application_dev.properties
+        export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 	;;
     stg)
 	;;
@@ -33,14 +33,14 @@ esac
 
 case $2 in
     start)
-        nohup $JAVA_HOME/bin/java $JAVA_OPTS -jar $APP_HOME/sterlingbot.jar --spring.config.location=$APP_CONFIG 1> /dev/null 2>&1 
-        # nohup $JAVA_HOME/bin/java $JAVA_OPTS -jar $APP_HOME/sterlingbot.jar --spring.config.location=$APP_CONFIG > /dev/null 2>&1 & 
+        # nohup java $JVM_OPTS -jar $APP_HOME/sterlingbot.jar --spring.config.location=$APP_CONFIG 1> /dev/null 2>&1 
+        nohup java $JVM_OPTS -jar $APP_HOME/build/libs/sterlingbot-0.0.1-SNAPSHOT.jar --spring.config.location=$APP_CONFIG com.invest.coin.AutoCoinTraderApplication > /dev/null 2>&1 & 
 	echo -n $! > $APP_HOME/bin/sterlingbot.pid
-	echo "process started.." 
+	echo [`cat $APP_HOME/bin/sterlingbot.pid`] "process started.." 
 	;;
     stop)
-        echo ['cat $APP_HOME/bin/sterlingbot.pid'] stop 
-	kill -9 'cat $APP_HOME/bin/sterlingbot.pid'
+        echo [`cat $APP_HOME/bin/sterlingbot.pid`] stop 
+	kill -9 `cat $APP_HOME/bin/sterlingbot.pid`
         ;; 
     *)
         printUsage $*
